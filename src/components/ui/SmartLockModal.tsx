@@ -70,7 +70,7 @@ export function SmartLockModal() {
                                     Desbloqueie o <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-400">PRO</span>
                                 </h3>
                                 <p className="text-slate-400 text-sm leading-relaxed">
-                                    A função <span className="font-bold text-slate-200">"{featureName}"</span> e muito mais espera por você.
+                                    A função <span className="font-bold text-slate-200">&quot;{featureName}&quot;</span> e muito mais espera por você.
                                 </p>
                             </div>
 

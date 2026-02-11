@@ -1,9 +1,9 @@
-export async function generateMotivation(context: any) {
+export async function generateMotivation(_context: unknown) {
     // Placeholder for LLM connection
     return ""
 }
 
-export async function analyzeHabits(userId: string) {
+export async function analyzeHabits(_userId: string) {
     // Placeholder for Pattern Recognition
     return {
         bestTime: "08:00",
@@ -11,7 +11,7 @@ export async function analyzeHabits(userId: string) {
     }
 }
 
-export async function suggestAdjustment(planId: string, adherenceData: any) {
+export async function suggestAdjustment(_planId: string, _adherenceData: unknown) {
     // Placeholder for Smart Adjustments
     return {
         suggestedCalorieChange: 0,

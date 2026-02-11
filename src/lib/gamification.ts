@@ -45,7 +45,7 @@ export async function calculateStreak(userId: string) {
     // If today is inactive, streak holds value of yesterday IF yesterday was active.
     // Actually, usually streak is "consecutive days ending yesterday" OR "ending today".
 
-    let currentCheck = new Date(today)
+    const currentCheck = new Date(today)
     let dateStr = currentCheck.toISOString().split('T')[0]
 
     if (activeDays.has(dateStr)) {

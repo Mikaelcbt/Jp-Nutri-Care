@@ -421,17 +421,41 @@ export async function updateProfile(formData: FormData) {
         return
     }
 
-    // Smart Lock Check
-    const { data: profile } = await supabase.from('profiles').select('plan_type').eq('id', user.id).single()
-    if (profile?.plan_type !== 'pro') {
-        throw new Error('PLAN_LIMIT_REACHED')
-    }
+    // ALLOW name/avatar updates for everyone (remove Pro check)
+    // const { data: profile } = await supabase.from('profiles').select('plan_type').eq('id', user.id).single()
+    // if (profile?.plan_type !== 'pro') {
+    //    throw new Error('PLAN_LIMIT_REACHED')
+    // }
 
     const fullName = formData.get('fullName') as string
+    const avatarFile = formData.get('avatar') as File
+
+    let avatarUrl = user.user_metadata.avatar_url
+
+    // Handle Avatar Upload
+    if (avatarFile && avatarFile.size > 0 && avatarFile.name !== 'undefined') {
+        const fileExt = avatarFile.name.split('.').pop()
+        const fileName = `${user.id}-${Math.random()}.${fileExt}`
+        const filePath = `avatars/${fileName}`
+
+        const { error: uploadError } = await supabase.storage
+            .from('avatars') // Ensure this bucket exists in Supabase!
+            .upload(filePath, avatarFile)
+
+        if (uploadError) {
+            console.error('Error uploading avatar:', uploadError)
+            // Continue without avatar update or throw? Let's log and continue for now.
+        } else {
+            const { data: { publicUrl } } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(filePath)
+            avatarUrl = publicUrl
+        }
+    }
 
     // Update Auth Metadata
     const { error: authError } = await supabase.auth.updateUser({
-        data: { full_name: fullName }
+        data: { full_name: fullName, avatar_url: avatarUrl }
     })
 
     if (authError) throw new Error(authError.message)
@@ -439,7 +463,7 @@ export async function updateProfile(formData: FormData) {
     // Update Profile Table
     const { error: profileError } = await supabase
         .from('profiles')
-        .update({ full_name: fullName })
+        .update({ full_name: fullName, avatar_url: avatarUrl })
         .eq('id', user.id)
 
     if (profileError) throw new Error(profileError.message)

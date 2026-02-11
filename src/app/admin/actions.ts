@@ -279,7 +279,14 @@ export async function createTemplate(name: string) {
     return data
 }
 
-export async function saveTemplateDay(templateId: string, dayNumber: number, meals: any[]) {
+interface MealInput {
+    name: string;
+    time: string;
+    description: string;
+    target_calories: number;
+}
+
+export async function saveTemplateDay(templateId: string, dayNumber: number, meals: MealInput[]) {
     const { supabase } = await requireAdmin()
 
     // Check if day exists
@@ -378,7 +385,7 @@ export async function assignPlanToUser(userId: string, templateId: string, start
             if (dayError) console.error('Error creating day', dayError)
 
             if (newDay && tDay.meals_json) {
-                const meals = tDay.meals_json as any[]
+                const meals = tDay.meals_json as unknown as MealInput[]
                 const mealsInsert = meals.map(m => ({
                     diet_day_id: newDay.id,
                     name: m.name,

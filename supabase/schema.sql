@@ -7,6 +7,7 @@ create table public.profiles (
   full_name text,
   avatar_url text,
   role text default 'patient' check (role in ('patient', 'admin')),
+  plan_type text default 'free' check (plan_type in ('free', 'pro')),
   status text default 'active' check (status in ('active', 'banned')),
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );

@@ -1,6 +1,7 @@
 'use client'
 
 import { User as UserIcon, Mail, Camera, Save, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { useFormStatus } from 'react-dom'
 import { updateProfile } from '@/app/app/actions'
 import { useState } from 'react'
@@ -29,7 +30,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
     const [avatarUrl, setAvatarUrl] = useState(user?.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email}`)
 
     async function handleUpdate(formData: FormData) {
-        await updateProfile(formData)
+        try {
+            await updateProfile(formData)
+            toast.success('Perfil atualizado com sucesso!')
+        } catch (error) {
+            toast.error('Erro ao atualizar perfil.')
+        }
     }
 
     return (
@@ -46,7 +52,18 @@ export function ProfileForm({ user }: ProfileFormProps) {
                     </div>
                     <label className="absolute bottom-0 right-0 p-2 rounded-full bg-primary text-white shadow-lg cursor-pointer hover:bg-primary/80 transition-colors">
                         <Camera className="w-5 h-5" />
-                        <input type="file" className="hidden" accept="image/*" />
+                        <input
+                            type="file"
+                            name="avatar"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={(e) => {
+                                const file = e.target.files?.[0]
+                                if (file) {
+                                    setAvatarUrl(URL.createObjectURL(file))
+                                }
+                            }}
+                        />
                     </label>
                 </div>
             </div>

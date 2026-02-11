@@ -52,7 +52,7 @@ async function runTest() {
     // 5. Verify Deletion
     console.log('\n[5/5] Verifying Deletion...');
     const allTemplates = await getPlanTemplates();
-    const found = allTemplates.find((t: any) => t.id === template.id);
+    const found = allTemplates.find((t: { id: string }) => t.id === template.id);
     if (!found) {
         console.log('✅ Deletion Verified: Template not found in list.');
     } else {
