@@ -63,7 +63,15 @@ export async function updateSession(request: NextRequest) {
 
     // 2. Auth routes (redirect if already logged in)
     if (request.nextUrl.pathname.startsWith('/auth') && user) {
-        return NextResponse.redirect(new URL('/app', request.url))
+        // Check if user is admin
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+
+        const redirectUrl = profile?.role === 'admin' ? '/admin/dashboard' : '/app'
+        return NextResponse.redirect(new URL(redirectUrl, request.url))
     }
 
     // 3. Admin routes (STRICT Protection)
