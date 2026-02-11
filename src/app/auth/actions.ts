@@ -13,10 +13,17 @@ export async function login(formData: FormData) {
         password: formData.get('password') as string,
     }
 
-    const { error } = await supabase.auth.signInWithPassword(data)
+    try {
+        const { error } = await supabase.auth.signInWithPassword(data)
 
-    if (error) {
-        redirect(`/auth/login?error=${encodeURIComponent(error.message)}`)
+        if (error) {
+            redirect(`/auth/login?error=${encodeURIComponent(error.message)}`)
+        }
+    } catch (error) {
+        if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+            throw error
+        }
+        redirect(`/auth/login?error=Erro de conexão. Tente novamente.`)
     }
 
     revalidatePath('/', 'layout')
@@ -37,10 +44,17 @@ export async function signup(formData: FormData) {
         }
     }
 
-    const { error } = await supabase.auth.signUp(data)
+    try {
+        const { error } = await supabase.auth.signUp(data)
 
-    if (error) {
-        redirect(`/auth/register?error=${encodeURIComponent(error.message)}`)
+        if (error) {
+            redirect(`/auth/register?error=${encodeURIComponent(error.message)}`)
+        }
+    } catch (error) {
+        if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+            throw error
+        }
+        redirect(`/auth/register?error=Erro de conexão. Tente novamente.`)
     }
 
     revalidatePath('/', 'layout')
