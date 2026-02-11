@@ -31,7 +31,7 @@ export async function signup(formData: FormData) {
         password: formData.get('password') as string,
         options: {
             data: {
-                full_name: formData.get('fullName') as string,
+                full_name: formData.get('full_name') as string,
                 avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.get('email')}`
             }
         }
