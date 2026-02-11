@@ -1,13 +1,14 @@
 import { createBrowserClient } from '@supabase/ssr'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+export function createClient() {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseKey) {
-    throw new Error(
-        'Missing Supabase environment variables. Check your .env file or Vercel project settings.'
-    )
-}
+    if (!supabaseUrl || !supabaseKey) {
+        throw new Error(
+            'Missing Supabase environment variables. Check your .env file or Vercel project settings.'
+        )
+    }
 
-return createBrowserClient(supabaseUrl, supabaseKey)
+    return createBrowserClient(supabaseUrl, supabaseKey)
 }
