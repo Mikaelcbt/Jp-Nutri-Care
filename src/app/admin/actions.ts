@@ -490,3 +490,92 @@ export async function togglePlanAction(formData: FormData) {
     await updateUserPlan(userId, newPlan)
     revalidatePath('/admin/patients')
 }
+
+/**
+ * Assign Plan Template to Patient
+ * Creates a new diet_plan and copies all days/meals from the template
+ */
+export async function assignPlanToPatient(formData: FormData) {
+    const { supabase } = await requireAdmin()
+
+    const patientId = formData.get('patientId') as string
+    const templateId = formData.get('templateId') as string
+
+    if (!patientId || !templateId) {
+        throw new Error('Missing patientId or templateId')
+    }
+
+    // 1. Get Template with all days and meals
+    const { data: template, error: templateError } = await supabase
+        .from('diet_plan_templates')
+        .select(`
+            *,
+            diet_plan_template_days (
+                *,
+                diet_plan_template_meals (*)
+            )
+        `)
+        .eq('id', templateId)
+        .single()
+
+    if (templateError || !template) {
+        throw new Error('Template not found')
+    }
+
+    // 2. Create new diet_plan for the patient
+    const { data: newPlan, error: planError } = await supabase
+        .from('diet_plans')
+        .insert({
+            user_id: patientId,
+            title: template.name,
+            description: template.description,
+            start_date: new Date().toISOString().split('T')[0],
+            duration_days: template.duration_days
+        })
+        .select()
+        .single()
+
+    if (planError || !newPlan) {
+        throw new Error('Failed to create plan: ' + planError?.message)
+    }
+
+    // 3. Copy all days from template
+    for (const templateDay of template.diet_plan_template_days) {
+        const { data: newDay, error: dayError } = await supabase
+            .from('diet_days')
+            .insert({
+                plan_id: newPlan.id,
+                day_number: templateDay.day_number
+            })
+            .select()
+            .single()
+
+        if (dayError || !newDay) {
+            console.error('Failed to create day:', dayError)
+            continue
+        }
+
+        // 4. Copy all meals for this day
+        const mealsToInsert = templateDay.diet_plan_template_meals.map((templateMeal: any) => ({
+            diet_day_id: newDay.id,
+            name: templateMeal.name,
+            time: templateMeal.time,
+            description: templateMeal.description,
+            target_calories: templateMeal.target_calories
+        }))
+
+        if (mealsToInsert.length > 0) {
+            const { error: mealsError } = await supabase
+                .from('meals')
+                .insert(mealsToInsert)
+
+            if (mealsError) {
+                console.error('Failed to create meals:', mealsError)
+            }
+        }
+    }
+
+    revalidatePath('/admin/patients')
+    revalidatePath(`/admin/patients/${patientId}`)
+    return { success: true, planId: newPlan.id }
+}

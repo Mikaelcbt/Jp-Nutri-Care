@@ -1,32 +1,39 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { Plus, X } from 'lucide-react'
-import { assignPlanToUser } from '@/app/admin/actions'
+import { assignPlanToPatient } from '@/app/admin/actions'
+import { toast } from 'sonner'
 import clsx from 'clsx'
 
 export function AssignPlanButton({ userId, templates }: { userId: string, templates: any[] }) {
     const [isOpen, setIsOpen] = useState(false)
-    const [loading, setLoading] = useState(false)
+    const [isPending, startTransition] = useTransition()
 
     // Form State
     const [selectedTemplate, setSelectedTemplate] = useState(templates[0]?.id || '')
     const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0])
 
     const handleAssign = async () => {
-        if (!selectedTemplate) return
-
-        setLoading(true)
-        try {
-            await assignPlanToUser(userId, selectedTemplate, startDate)
-            setIsOpen(false)
-            // Ideally invoke a toast here
-        } catch (error) {
-            console.error(error)
-            alert('Erro ao atribuir plano. Verifique o console.')
-        } finally {
-            setLoading(false)
+        if (!selectedTemplate) {
+            toast.error('Selecione um template')
+            return
         }
+
+        const formData = new FormData()
+        formData.append('patientId', userId)
+        formData.append('templateId', selectedTemplate)
+
+        startTransition(async () => {
+            try {
+                await assignPlanToPatient(formData)
+                toast.success('Plano atribuído com sucesso!')
+                setIsOpen(false)
+            } catch (error) {
+                console.error(error)
+                toast.error('Erro ao atribuir plano')
+            }
+        })
     }
 
     if (!templates || templates.length === 0) {
@@ -80,13 +87,13 @@ export function AssignPlanButton({ userId, templates }: { userId: string, templa
 
                         <button
                             onClick={handleAssign}
-                            disabled={loading}
+                            disabled={isPending}
                             className={clsx(
                                 "w-full py-4 rounded-xl bg-primary text-white font-bold text-sm hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2",
-                                loading && "opacity-70 cursor-wait"
+                                isPending && "opacity-70 cursor-wait"
                             )}
                         >
-                            {loading ? 'Processando...' : 'Confirmar Atribuição'}
+                            {isPending ? 'Processando...' : 'Confirmar Atribuição'}
                         </button>
                     </div>
                 </div>

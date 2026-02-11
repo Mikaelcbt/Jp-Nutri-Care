@@ -1,10 +1,12 @@
 import { Search, Edit2, Ban, Eye, Filter, MoreVertical, UserPlus, CheckCircle2, Crown } from 'lucide-react'
 import Link from 'next/link'
-import { getPatients, togglePlanAction } from '../actions'
+import { getPatients, togglePlanAction, getPlanTemplates } from '../actions'
+import { AssignPlanButton } from '@/components/admin/AssignPlanButton'
 
 export default async function AdminPatientsPage({ searchParams }: { searchParams: { q?: string } }) {
     const query = searchParams.q
     const patients = await getPatients(query)
+    const templates = await getPlanTemplates()
 
     return (
         <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -95,7 +97,9 @@ export default async function AdminPatientsPage({ searchParams }: { searchParams
                                     </button>
                                 </Link>
 
-                                <TogglePlanButton userId={patient.id} currentPlan={patient.current_plan?.title} />
+                                <AssignPlanButton userId={patient.id} templates={templates} />
+
+                                <TogglePlanButton userId={patient.id} currentPlan={patient.plan_type} />
 
                                 <button className="p-3 rounded-xl border border-slate-200 text-slate-400 hover:bg-red-50 hover:border-red-200 hover:text-red-500 transition-all">
                                     <Ban className="w-4 h-4" />
