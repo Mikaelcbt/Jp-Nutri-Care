@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { Check, Clock, ChevronDown, ChevronUp } from 'lucide-react'
 import { toggleMeal } from '@/app/app/actions'
 import clsx from 'clsx'
-import { ProGuard } from '@/components/ui/ProGuard'
 
 export function MealList({ meals, isPro }: { meals: any[], isPro: boolean }) {
     // Optimistic state could be handled here or rely on revalidatePath
@@ -53,20 +52,18 @@ function MealCard({ meal, isPro }: { meal: any, isPro: boolean }) {
         >
             <div className="flex items-center gap-5">
                 {/* Check Button */}
-                <ProGuard isPro={isPro} feature="Registrar Refeição" asChild>
-                    <button
-                        onClick={handleToggle}
-                        disabled={loading}
-                        className={clsx(
-                            "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 shrink-0 z-10 border-2 group-active:scale-90",
-                            completed
-                                ? "bg-primary border-primary text-white shadow-inner"
-                                : "bg-transparent border-slate-100 text-slate-200 hover:border-primary/30 hover:text-primary/50 hover:bg-slate-50"
-                        )}
-                    >
-                        <Check className={clsx("w-6 h-6 stroke-[3] transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1)", completed ? "scale-100 rotate-0" : "scale-0 -rotate-90 opacity-0")} />
-                    </button>
-                </ProGuard>
+                <button
+                    onClick={handleToggle}
+                    disabled={loading}
+                    className={clsx(
+                        "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 shrink-0 z-10 border-2 group-active:scale-90",
+                        completed
+                            ? "bg-primary border-primary text-white shadow-inner"
+                            : "bg-transparent border-slate-100 text-slate-200 hover:border-primary/30 hover:text-primary/50 hover:bg-slate-50"
+                    )}
+                >
+                    <Check className={clsx("w-6 h-6 stroke-[3] transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1)", completed ? "scale-100 rotate-0" : "scale-0 -rotate-90 opacity-0")} />
+                </button>
 
                 <div className="flex-1 min-w-0 py-1">
                     <div className="flex justify-between items-center mb-1">
