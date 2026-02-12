@@ -246,12 +246,6 @@ export async function toggleMeal(mealId: string, isCompleted: boolean) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('Unauthorized')
 
-    // Smart Lock Check
-    const { data: profile } = await supabase.from('profiles').select('plan_type').eq('id', user.id).single()
-    if (profile?.plan_type !== 'pro') {
-        throw new Error('PLAN_LIMIT_REACHED')
-    }
-
     const { error } = await supabase
         .from('meal_logs')
         .upsert({
@@ -264,6 +258,7 @@ export async function toggleMeal(mealId: string, isCompleted: boolean) {
 
     if (error) throw new Error(error.message)
     revalidatePath('/app/seu-dia')
+    revalidatePath('/app/plano')
 }
 
 /**
@@ -273,12 +268,6 @@ export async function addWater(amount: number) {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('Unauthorized')
-
-    // Smart Lock Check
-    const { data: profile } = await supabase.from('profiles').select('plan_type').eq('id', user.id).single()
-    if (profile?.plan_type !== 'pro') {
-        throw new Error('PLAN_LIMIT_REACHED')
-    }
 
     const today = new Date().toISOString().split('T')[0]
 
